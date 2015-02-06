@@ -1,0 +1,8 @@
+{
+	"name": "chord",
+	"version": "0.0.1",
+	"description": "chord p2p",
+ 	"dependencies": {
+		"express": "^4.10.2"
+		}
+}
