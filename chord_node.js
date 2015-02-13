@@ -2,39 +2,47 @@ var app = require('express')();
 var http = require('http');
 var crypto = require('crypto');
 var ip = require('ip');
+var request = require('request');
 
-//Generating random portnumber
+// ****************************************** Initial Setup ******************************************
 var port = randomInt(1000, 9999);
 var currentIP = ip.address();
 
 var knownAddress = process.argv[2] || false;
 var hash = getHash(currentIP, port);
 
+var Node = function(id, ip, port){
+	this.id = id;
+	this.ip = ip;
+	this.port = port;
+	
+	this.getAddress = function(){
+		return this.ip + ':' + this.port;
+	}
+	
+	this.getJson = function(){
+		return JSON.stringify({id: this.id, ip: this.ip, port: this.port});
+	}
+}
+
+// ****************************************** Know Peers ******************************************
+
+
+var successor = new Node(hash, currentIP, port);
+var predecessor = new Node(hash, currentIP, port);
+
+
 if(knownAddress){
 	
-	knownAddress = knownAddress.split(':');
-	
-	var options = {
-	  host: knownAddress[0],
-	  port: knownAddress[1],
-	  path: '/findsuccessor/'+hash,
-	  method: 'GET'
-	};
-	
-	http.get(options, function(res){
-
-	  // Buffer the body entirely for processing as a whole.
-	  var bodyChunks = [];
-	  res.on('data', function(chunk) {
-	    // You can process streamed parts here...
-	    bodyChunks.push(chunk);
-	  }).on('end', function() {
-	    var body = Buffer.concat(bodyChunks);
-	    console.log('BODY: ' + body);
-	    // ...and/or process the entire body here.
-	  })
+	request('http://'+knownAddress+'/findsuccessor/'+hash, function (error, response, body) {
+	    var json = JSON.parse(body);
+	    successor = new Node(json.id, json.ip, json.port);
+	    console.log( successor.getJson() );
 	});
+	
 }
+
+// ****************************************** Server setup ******************************************
 
 app.get('/', function(req, res){
 	res.send('<html><head><title></title></head><body style="text-align:center"> \
@@ -46,10 +54,56 @@ app.get('/findsuccessor/:key', function(req, res){
 	res.send( findSuccessor(req.params.key) );
 });
 
-
-//starting server on given port
 app.listen(port);
-console.log('server listen on: '+currentIP+':'+port) 
+console.log('server listen on: '+currentIP+':'+port); 
+
+
+// ****************************************** Chord functions ******************************************
+
+function findSuccessor(key){
+	id = parseInt(key, 16);
+	myID = getKey();
+	successorID = parseInt(successor.id, 16);
+	
+	if(myID < id <= successorID){
+		return successor.getJson();
+	}else{
+		request('http://'+successor.getAddress()+'/findsuccessor/'+key, function (error, response, body) {
+		    console.log(body);
+		    return body;
+		});
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-------------- HELP METHODS -----------------------*/
+
+
 
 function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
@@ -64,15 +118,7 @@ function getHash(ip, port){
 	return shasum.digest('hex');
 }
 
-function findSuccessor(key){
-	id = parseInt(key, 16);
-	myID = parseInt(getHash(currentIP, port), 16);
-	
-	if(id > myID <= finger[0]){
-		return finger[0];
-	}else{
-		
-	}
-	
-	return JSON.stringify({ip: currentIP, port: port});
+
+function getKey(){
+	return parseInt(getHash(currentIP, port), 16);
 }
