@@ -1,58 +1,11 @@
 var crypto = require('crypto');
 var ip = require('ip');
-var request = require('request');
 
-<<<<<<< Updated upstream
-// ****************************************** Initial Setup ******************************************
-var port = randomInt(1000, 9999);
-var currentIP = ip.address();
-=======
 var Node = function(){
->>>>>>> Stashed changes
 
 	this.predecessor = null;
 	this.successor = null;
 
-<<<<<<< Updated upstream
-var Node = function(id, ip, port){
-	this.id = id;
-	this.ip = ip;
-	this.port = port;
-	
-	this.getAddress = function(){
-		return this.ip + ':' + this.port;
-	}
-	
-	this.getJson = function(){
-		return JSON.stringify({id: this.id, ip: this.ip, port: this.port});
-	}
-}
-
-// ****************************************** Know Peers ******************************************
-
-
-var successor = new Node(hash, currentIP, port);
-var predecessor = new Node(hash, currentIP, port);
-
-
-if(knownAddress){
-	
-	request('http://'+knownAddress+'/findsuccessor/'+hash, function (error, response, body) {
-	    var json = JSON.parse(body);
-	    successor = new Node(json.id, json.ip, json.port);
-	    console.log( successor.getJson() );
-	});
-	
-}
-
-// ****************************************** Server setup ******************************************
-
-app.get('/', function(req, res){
-	res.send('<html><head><title></title></head><body style="text-align:center"> \
-	<h1>'+hash+'</h1> \
-	</body></html>');
-});
-=======
 	this.port = randomInt(1000, 9999);
 	this.ip = ip.address();
 	this.id = hash(this.ip, this.port);
@@ -88,7 +41,6 @@ app.get('/', function(req, res){
 		if(this.id > id && this.successor.id < id){
 			return this.successor.find_predecessor(id);
 		}
->>>>>>> Stashed changes
 
 		if(this.id > id && this.successor.id > id){
 			if(this.id >= this.successor.id){
@@ -98,58 +50,6 @@ app.get('/', function(req, res){
 			}
 		}
 
-<<<<<<< Updated upstream
-app.listen(port);
-console.log('server listen on: '+currentIP+':'+port); 
-
-
-// ****************************************** Chord functions ******************************************
-
-function findSuccessor(key){
-	id = parseInt(key, 16);
-	myID = getKey();
-	successorID = parseInt(successor.id, 16);
-	
-	if(myID < id <= successorID){
-		return successor.getJson();
-	}else{
-		request('http://'+successor.getAddress()+'/findsuccessor/'+key, function (error, response, body) {
-		    console.log(body);
-		    return body;
-		});
-	}
-	
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*-------------- HELP METHODS -----------------------*/
-
-
-=======
 		if(this.id < id && this.successor.id > id){
 			return this;
 		}
@@ -173,7 +73,6 @@ function findSuccessor(key){
 	}
 
 }
->>>>>>> Stashed changes
 
 function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
@@ -188,11 +87,6 @@ function hash(ip, port){
 	return shasum.digest('hex');
 }
 
-<<<<<<< Updated upstream
-
-function getKey(){
-	return parseInt(getHash(currentIP, port), 16);
-=======
 if(process.argv[2]){
 	n = new Node();
 	known = process.argv[2];
@@ -218,5 +112,4 @@ if(process.argv[2]){
 	console.log(n3.getHash()+' = '+n3.successor.id+' : '+n3.predecessor.id);
 
 	console.log(n.find_successor(9876).id);
->>>>>>> Stashed changes
 }
