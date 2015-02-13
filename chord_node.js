@@ -10,10 +10,6 @@ var Node = function(){
 	this.ip = ip.address();
 	this.id = hash(this.ip, this.port);
 
-	this.getHash = function(){
-		return this.id;
-	}
-
 	this.create = function(){
 		this.successor = this;
 	}
@@ -106,10 +102,10 @@ if(process.argv[2]){
 	n3 = new Node();
 	n3.join(n);
 
-	console.log(n.getHash()+' = '+n.successor.id+' : '+n.predecessor.id);
-	console.log(n1.getHash()+' = '+n1.successor.id+' : '+n1.predecessor.id);
-	console.log(n2.getHash()+' = '+n2.successor.id+' : '+n2.predecessor.id);
-	console.log(n3.getHash()+' = '+n3.successor.id+' : '+n3.predecessor.id);
+	console.log(n.id+' = '+n.successor.id+' : '+n.predecessor.id);
+	console.log(n1.id+' = '+n1.successor.id+' : '+n1.predecessor.id);
+	console.log(n2.id+' = '+n2.successor.id+' : '+n2.predecessor.id);
+	console.log(n3.id+' = '+n3.successor.id+' : '+n3.predecessor.id);
 
-	console.log(n.find_successor(9876).id);
+	console.log(n.find_successor('9876').id);
 }
