@@ -1,0 +1,88 @@
+<html>
+<head>
+	<title>Chord node interface</title>
+	<style type="text/css">
+		body{
+			text-align: center;
+			font-family: sans-serif;
+		}
+		#predecessor{
+			float: left;
+		}
+		#successor{
+			float: right;
+		}
+		table{
+			margin-right: auto;
+			margin-left: auto;
+			position: relative;
+			text-align: left;
+		}
+		td, th{
+			padding: 5px;
+		}
+		#search_form{
+			margin-top: 50px;
+		}
+		input{
+			padding: 5px;
+			font-size: 12pt;
+		}
+		.hidden{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<a href="#" id="predecessor">&#60;&#60; predecessor</a>
+	<a href="#" id="successor">successor &#62;&#62;</a>
+
+	<h1 id="id"></h1>
+
+	<table border="1">
+		<tr>
+			<th>IP:</th>
+			<td id="ip"></td>
+		</tr>
+		<tr>
+			<th>Port:</th>
+			<td id="port"></td>
+		</tr>
+	</table>
+	
+	<form action="get" id="search_form">
+		<input type="text" name="query" placeholder="Search for key..." />
+		<input type="submit" value="Search" />
+	</form>
+
+	<a href="#" id="result" class="hidden"></a>
+
+	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript">
+
+		$.getJSON('/node', function (n) {
+			$('#id').text(n.id);
+			$('#ip').text(n.ip);
+			$('#port').text(n.port);
+		});
+
+		$.getJSON('/predecessor', function (n) {
+			$('#predecessor').attr('href', 'http://' + n.ip + ':' + n.port);
+		});
+
+		$.getJSON('/successor', function (n) {
+			$('#successor').attr('href', 'http://' + n.ip + ':' + n.port);
+		});
+
+		$('#search_form').submit(function(data){
+			var query = $('input[name=query]').val();
+			$.getJSON('/find_successor/'+query, function (n) {
+				$('#result').text(n.id).attr('href', 'http://' + n.ip + ':' + n.port);
+				$('#result').show();
+			});
+			return false;
+		});
+
+	</script>
+</body>
+</html>
