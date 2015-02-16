@@ -76,7 +76,7 @@
 
 		$('#search_form').submit(function(data){
 			var query = $('input[name=query]').val();
-			$.getJSON('/find_successor/'+query, function (n) {
+			$.getJSON('/lookup/'+query, function (n) {
 				$('#result').text(n.id).attr('href', 'http://' + n.ip + ':' + n.port);
 				$('#result').show();
 			});

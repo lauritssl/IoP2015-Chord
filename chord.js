@@ -61,6 +61,13 @@ server.get('/node/', function (req, res, next){
 	next();
 });
 
+server.get('/lookup/:id', function (req, res, next){
+	n.lookup(req.params.id, function(data){
+		res.send(200, data);
+		next();
+	});
+});
+
 server.post('/notify/:ip/:port', function (req, res, next){
 	n.notify( util.peerFromJson(req.params) );
 	res.send(200, 'success');

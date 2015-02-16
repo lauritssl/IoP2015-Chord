@@ -122,6 +122,14 @@ exports.Node = function(ip, port){
 		}(this));
 	}
 
+	this.lookup = function(id, callback){
+		if(id == this.id){
+			callback(this.toJson());
+		}else{
+			callback(this.find_successor(id));
+		}
+	}
+
 	this.toJson = function(){
 		return {ip: this.ip, port: this.port, id: this.id};
 	}
