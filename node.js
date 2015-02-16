@@ -54,21 +54,21 @@ exports.Node = function(ip, port){
 	}
 
 	this.find_successor = function(id, callback){
-
-		if(this.id == id){
-			callback(this.toJson());
-		}else{
-			this.find_predecessor(id, function(n0){
-				
-				util.peerFromJson(n0).successor(function(data){
-					callback(data);
-				});
-
+		this.find_predecessor(id, function(n0){
+			
+			util.peerFromJson(n0).successor(function(data){
+				callback(data);
 			});
-		}
+
+		});
 	}
 
 	this.find_predecessor = function(id, callback){
+
+		if(this.id == id){
+			callback(this.predecessor.toJson());
+		}
+
 		if(this.id > id && this.successor.id < id){
 			this.successor.find_predecessor(id, function(data){
 				callback(data);
@@ -91,7 +91,7 @@ exports.Node = function(ip, port){
 			callback( this.toJson() ); //return this
 		}
 
-		if(this.id < id && this.successor.id < id){
+		if(this.id < id && this.successor.id <= id){
 			if(this.id >= this.successor.id){
 				callback( this.toJson() ); //return this
 			} else{
@@ -128,9 +128,11 @@ exports.Node = function(ip, port){
 	}
 
 	this.lookup = function(id, callback){
-		this.find_successor(id, function(data){
-			callback(data);
-		});
+		if(this.id == id){
+			callback(this.toJson());
+		}else{
+			this.find_successor(id, callback);
+		}
 	}
 
 	this.toJson = function(){

@@ -71,4 +71,8 @@ exports.Peer = function(ip, port){
 			callback(data);
 		});
 	}
+
+	this.toJson = function(){
+		return {ip: this.ip, port: this.port, id: this.id};
+	}
 }
