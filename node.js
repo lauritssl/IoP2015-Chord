@@ -126,7 +126,9 @@ exports.Node = function(ip, port){
 		if(id == this.id){
 			callback(this.toJson());
 		}else{
-			callback(this.find_successor(id));
+			this.find_successor(id, function(data){
+				callback(data);
+			});
 		}
 	}
 
