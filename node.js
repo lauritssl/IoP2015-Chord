@@ -27,7 +27,7 @@ exports.Node = function(ip, port){
 				par.predecessor.successor(function(data){
 				 	par.successor = util.peerFromJson(data);
 				 	console.log('successor: ' + par.successor.id);
-
+				 	
 				 	par.successor.notify(par.toJson(), function(data){
 				 		par.predecessor.notify(par.toJson(), function(data){
 				 			console.log('Join succesfull');
@@ -35,7 +35,7 @@ exports.Node = function(ip, port){
 				 	});
 				});
 			});
-
+		
 		}(this));
 	}
 
@@ -50,23 +50,22 @@ exports.Node = function(ip, port){
 				});
 			});
 		}(this));
-
+		
 	}
 
 	this.find_successor = function(id, callback){
-		if(id == this.id){
+
+		if(this.id == id){
 			callback(this.toJson());
 		}else{
 			this.find_predecessor(id, function(n0){
-
-			util.peerFromJson(n0).successor(function(data){
+				
+				util.peerFromJson(n0).successor(function(data){
 					callback(data);
 				});
 
 			});
 		}
-
-
 	}
 
 	this.find_predecessor = function(id, callback){
@@ -130,9 +129,8 @@ exports.Node = function(ip, port){
 
 	this.lookup = function(id, callback){
 		this.find_successor(id, function(data){
-				callback(data);
-			});
-		}
+			callback(data);
+		});
 	}
 
 	this.toJson = function(){
