@@ -67,7 +67,7 @@ exports.Peer = function(ip, port){
 	this.lookup = function(id, callback){
 		restify.createJsonClient({
 			url: 'http://'+this.ip+':'+this.port
-		}).post('/lookup/' + id + '/' + n.port, function(err, req, res, data){
+		}).get('/lookup/'+id, function(err, req, res, data){
 			callback(data);
 		});
 	}
