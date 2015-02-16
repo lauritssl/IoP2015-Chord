@@ -54,13 +54,18 @@ exports.Node = function(ip, port){
 	}
 
 	this.find_successor = function(id, callback){
-		this.find_predecessor(id, function(n0){
-			
-			util.peerFromJson(n0).successor(function(data){
-				callback(data);
-			});
 
-		});
+		if(this.id == id){
+			callback(this.toJson());
+		}else{
+			this.find_predecessor(id, function(n0){
+				
+				util.peerFromJson(n0).successor(function(data){
+					callback(data);
+				});
+
+			});
+		}
 	}
 
 	this.find_predecessor = function(id, callback){
@@ -123,13 +128,9 @@ exports.Node = function(ip, port){
 	}
 
 	this.lookup = function(id, callback){
-		if(id == this.id){
-			callback(this.toJson());
-		}else{
-			this.find_successor(id, function(data){
-				callback(data);
-			});
-		}
+		this.find_successor(id, function(data){
+			callback(data);
+		});
 	}
 
 	this.toJson = function(){
