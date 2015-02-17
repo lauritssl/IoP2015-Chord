@@ -64,11 +64,6 @@ exports.Node = function(ip, port){
 	}
 
 	this.find_predecessor = function(id, callback){
-
-		if(this.id == id){
-			callback(this.predecessor.toJson());
-		}
-
 		if(this.id > id && this.successor.id < id){
 			this.successor.find_predecessor(id, function(data){
 				callback(data);
@@ -76,7 +71,7 @@ exports.Node = function(ip, port){
 			//return this.successor.find_predecessor(id);
 		}
 
-		if(this.id > id && this.successor.id > id){
+		if(this.id > id && this.successor.id >= id){
 			if(this.id >= this.successor.id){
 				callback( this.toJson() ); //return this
 			} else{
@@ -87,11 +82,11 @@ exports.Node = function(ip, port){
 			}
 		}
 
-		if(this.id < id && this.successor.id > id){
+		if(this.id < id && this.successor.id >= id){
 			callback( this.toJson() ); //return this
 		}
 
-		if(this.id < id && this.successor.id <= id){
+		if(this.id < id && this.successor.id < id){
 			if(this.id >= this.successor.id){
 				callback( this.toJson() ); //return this
 			} else{
