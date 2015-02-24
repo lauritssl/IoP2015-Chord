@@ -151,12 +151,12 @@ exports.Node = function(ip, port){
 	this.lookup = function(id, callback){
 		if(this.id == id){
 			callback(this.toJson());
-		}else if(id > this.finger[this.finger.length].id){
-			this.finger[this.finger.length].lookup(id, callback);
+		}else if(util.isBetween(id, this.id, this.successor.id) || id == this.successor.id){
+			callback(this.successor.toJson());
 		}else{
 			this.closest_preceding_node(id, function(data){
 				n0 = util.peerFromJson(data);
-				n0.successor(function(data){
+				n0.find_successor(id, function(data){
 					callback(data);
 				});
 			});
@@ -168,11 +168,21 @@ exports.Node = function(ip, port){
 	}
 
 	this.closest_preceding_node = function(id, callback){
-		for (var i = this.finger.length; i >= 1; i--) {
-			if(id > finger[i].id){
-				callback(finger[i].toJson());
+		
+		found = false;
+
+		for (var i = this.m; i >= 1; i--) {
+			if(util.isBetween(this.finger[i].id, this.id, id)){
+				found = true;
+				callback(this.finger[i].toJson());
 			}
 		};
+
+		if(!found){
+
+			this.finger[this.m].lookup(id, callback);
+		}
+
 	}
 
 	this.stabilize = function(){
