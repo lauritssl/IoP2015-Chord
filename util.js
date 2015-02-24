@@ -12,9 +12,38 @@ exports.hash = function(ip, port){
 	shasum.update(ip+':'+port);
 
 	//Return hash in hex
-	return shasum.digest('hex');
+	return shasum.digest('hex').substring(0, 5);
 }
 
 exports.peerFromJson = function(json){
 	return new peer.Peer(json.ip, json.port);
+}
+
+exports.isBetween = function(num, start, end){
+
+	if(start > num && end < num){
+		return false;
+	}
+
+	if(start > num && end > num){
+		if(start >= end){
+			return true;
+		} else{
+			return false;
+		}
+	}
+
+	if(start < num && end > num){
+		return true;
+	}
+
+	if(start < num && end < num){
+		if(start >= end){
+			return true;
+		} else{
+			return false;
+		}
+	}
+
+	return false;
 }

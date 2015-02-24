@@ -56,11 +56,11 @@ exports.Peer = function(ip, port){
 		});
 	}
 
-	this.notify = function(n, callback){
+	this.notify = function(n){
 		restify.createJsonClient({
 			url: 'http://'+this.ip+':'+this.port
 		}).post('/notify/' + n.ip + '/' + n.port, function(err, req, res, data){
-			callback(data);
+			
 		});
 	}
 
@@ -70,5 +70,17 @@ exports.Peer = function(ip, port){
 		}).get('/lookup/'+id, function(err, req, res, data){
 			callback(data);
 		});
+	}
+
+	this.closest_preceding_node = function(id, callback){
+		restify.createJsonClient({
+			url: 'http://'+this.ip+':'+this.port
+		}).get('/closest_preceding_node/'+id, function(err, req, res, data){
+			callback(data);
+		});
+	}	
+
+	this.toJson = function(){
+		return {ip: this.ip, port: this.port, id: this.id};
 	}
 }

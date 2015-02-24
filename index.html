@@ -56,6 +56,14 @@
 	</form>
 
 	<a href="#" id="result" class="hidden"></a>
+	
+	<table border="1" id="fingertable">
+		<tr>
+			<th>#</th>
+			<th>node</th>
+			<th>start</th>
+		</tr>
+	</table>
 
 	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 	<script type="text/javascript">
@@ -72,6 +80,12 @@
 
 		$.getJSON('/successor', function (n) {
 			$('#successor').attr('href', 'http://' + n.ip + ':' + n.port);
+		});
+
+		$.getJSON('/getFingerTable', function (fingers){
+			for (var i = 1; i <= fingers.length; i++) {
+				$('#fingertable').append('<tr><td>'+i+'</td><td>'+fingers[i].node+'</td><td>'+fingers[i].start+'</td></tr>');
+			};
 		});
 
 		$('#search_form').submit(function(data){

@@ -10,8 +10,24 @@ exports.Node = function(ip, port){
 	this.ip = ip;
 	this.id = util.hash(this.ip, this.port);
 
+	this.finger = [];
+	this.m = 20;
+
 	this.create = function(){
 		this.successor = util.peerFromJson( this.toJson() );
+		this.predecessor = util.peerFromJson( this.toJson() );
+
+		this.finger[1] = this.successor;
+
+		for (var i = 2; i <= this.m; i++) {
+			var tor = ((parseInt(this.id, 16) + Math.pow(2, i - 1)) % Math.pow(2, this.m)).toString(16);
+			
+			(function(par, i){
+				par.find_successor(tor, function(data){
+					par.finger[i] = util.peerFromJson(data);
+				});
+			}(this, i));
+		};
 	}
 
 	this.join = function(n){
@@ -30,6 +46,19 @@ exports.Node = function(ip, port){
 				 	
 				 	par.successor.notify(par.toJson(), function(data){
 				 		par.predecessor.notify(par.toJson(), function(data){
+
+				 			par.finger[1] = par.successor;
+
+							for (var i = 2; i <= par.m; i++) {
+								var tor = ((parseInt(par.id, 16) + Math.pow(2, i - 1)) % Math.pow(2, par.m)).toString(16);
+								
+								(function(par, i){
+									par.find_successor(tor, function(data){
+										par.finger[i] = util.peerFromJson(data);
+									});
+								}(par, i));
+							};
+
 				 			console.log('Join succesfull');
 				 		});
 				 	});
@@ -54,9 +83,11 @@ exports.Node = function(ip, port){
 	}
 
 	this.find_successor = function(id, callback){
+
 		this.find_predecessor(id, function(n0){
-			
-			util.peerFromJson(n0).successor(function(data){
+			n0 = util.peerFromJson(n0);
+
+			n0.successor(function(data){
 				callback(data);
 			});
 
@@ -100,38 +131,93 @@ exports.Node = function(ip, port){
 
 	this.notify = function(n){
 
+		n = util.peerFromJson(n);
+
 		//Closure to access parent object from nested functions
 		(function(par){
 
-			n.successor(function(n_successor){
-
-				n.predecessor(function(n_predecessor){
-
-					if(par.predecessor == null || par.predecessor.id == n_predecessor.id){
-						par.predecessor = n;
-						console.log('predecessor: ' + par.predecessor.id);
-					}
-					if(par.successor.id == par.id || par.successor.id == n_successor.id){
-						par.successor = n;
-						console.log('successor: ' + par.successor.id);
-					}
-
-				});
+			n.predecessor(function(n_predecessor){
+				if(par.predecessor == null || util.isBetween(n.id, par.predecessor.id, par.id)){
+					par.predecessor = n;
+					console.log(par.id+' - p: '+par.predecessor.id);
+				}	
 			});
 
 		}(this));
+
+			
 	}
 
 	this.lookup = function(id, callback){
 		if(this.id == id){
 			callback(this.toJson());
+		}else if(id > this.finger[this.finger.length].id){
+			this.finger[this.finger.length].lookup(id, callback);
 		}else{
-			this.find_successor(id, callback);
+			this.closest_preceding_node(id, function(data){
+				n0 = util.peerFromJson(data);
+				n0.successor(function(data){
+					callback(data);
+				});
+			});
 		}
 	}
 
 	this.toJson = function(){
 		return {ip: this.ip, port: this.port, id: this.id};
+	}
+
+	this.closest_preceding_node = function(id, callback){
+		for (var i = this.finger.length; i >= 1; i--) {
+			if(id > finger[i].id){
+				callback(finger[i].toJson());
+			}
+		};
+	}
+
+	this.stabilize = function(){
+
+		(function(par){
+			par.successor.predecessor(function(x){
+				x = util.peerFromJson(x);
+
+				if(typeof x.ip !== 'undefined' && util.isBetween(x.id, par.id, par.successor.id)){
+					par.successor = x;
+					console.log(par.id+' - s: '+par.successor.id);
+				}
+				par.successor.notify(par.toJson());
+			});
+		}(this));
+
+	}
+
+	this.fix_fingers = function(){
+
+		this.stabilize();
+
+		this.finger[1] = this.successor;
+
+		for (var i = 2; i <= this.m; i++) {
+			var tor = ((parseInt(this.id, 16) + Math.pow(2, i - 1)) % Math.pow(2, this.m)).toString(16);
+			
+			(function(par, i){
+				par.find_successor(tor, function(data){
+					par.finger[i] = util.peerFromJson(data);
+				});
+			}(this, i));
+		};
+	}
+
+	this.getFingerTable = function(callback){
+
+		var fingerTable = [];
+
+		for (var i = 1; i <= this.m; i++) {
+			tor = ((parseInt(this.id, 16) + Math.pow(2, i - 1)) % Math.pow(2, this.m)).toString(16);
+			fingerTable[i] = {node: this.finger[i].id, start: tor};
+		};
+
+		callback(fingerTable);
 	}
 
 }

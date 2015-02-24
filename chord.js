@@ -22,6 +22,8 @@ if(process.argv[2]){
 	n.create();
 }
 
+setInterval(function(){ n.fix_fingers(); } , 5000);
+
 //Creating server using restify
 var server = restify.createServer();
 
@@ -47,12 +49,12 @@ server.get('/find_predecessor/:id', function (req, res, next){
 });
 
 server.get('/successor/', function (req, res, next){
-	res.send(200, n.successor);
+	res.send(200, n.successor.toJson());
 	next();
 });
 
 server.get('/predecessor/', function (req, res, next){
-	res.send(200, n.predecessor);
+	res.send(200, n.predecessor.toJson());
 	next();
 });
 
@@ -63,6 +65,20 @@ server.get('/node/', function (req, res, next){
 
 server.get('/lookup/:id', function (req, res, next){
 	n.lookup(req.params.id, function(data){
+		res.send(200, data);
+		next();
+	});
+});
+
+server.get('/closest_preceding_node/:id', function (req, res, next){
+	n.closest_preceding_node(req.params.id, function(data){
+		res.send(200, data);
+		next();
+	});
+});
+
+server.get('/getFingerTable/', function (req, res, next){
+	n.getFingerTable(function(data){
 		res.send(200, data);
 		next();
 	});
@@ -83,6 +99,7 @@ server.post('/predecessor/:ip/:port', function (req, res, next){
 
 server.post('/successor/:ip/:port', function (req, res, next){
 	n.successor = util.peerFromJson(req.params);
+	n.finger[1] = n.successor;
 	console.log('predecessor: '+n.successor.id);
 	res.send(200, 'success');
 	next();
@@ -118,7 +135,7 @@ server.listen(port, function(){
 					console.log('port: '+n.predecessor.port);
 					console.log('id:   '+n.predecessor.id);
 				}else{
-					console.log('none (only node?)')
+					console.log('none (only node?)');
 				}
 				break;
 			case 'exit':
