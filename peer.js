@@ -80,6 +80,13 @@ exports.Peer = function(ip, port){
 		});
 	}	
 
+	this.fetchData = function(){
+		restify.createJsonClient({
+			url: 'http://'+this.ip+':'+this.port
+		}).post('/fetchData', function(err, req, res, data){
+		});
+	}
+
 	this.toJson = function(){
 		return {ip: this.ip, port: this.port, id: this.id};
 	}

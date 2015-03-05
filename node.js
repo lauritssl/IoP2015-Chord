@@ -230,4 +230,12 @@ exports.Node = function(ip, port){
 		callback(fingerTable);
 	}
 
+	this.fetchData = function(){
+		setInterval(function(){
+			util.readCore(function(data){
+				console.log(data);
+			});
+		}, 2000);
+	}
+
 }

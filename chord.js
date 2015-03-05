@@ -105,6 +105,12 @@ server.post('/successor/:ip/:port', function (req, res, next){
 	next();
 });
 
+server.post('/fetchData', function (req, res, next){
+	n.fetchData();
+	res.send(200, 'success');
+	next();
+});
+
 //Take command line inputs
 var rl = readline.createInterface({
   input: process.stdin,
@@ -119,7 +125,10 @@ server.listen(port, function(){
 
 	//Listen for command line input
 	rl.on('line', function(cmd) {
-		switch(cmd){
+
+		cmd = cmd.split(' ');
+
+		switch(cmd[0]){
 			case 'leave':
 				console.log('\nPerforming nice leave, please wait\n');
 				n.leave();
@@ -145,7 +154,15 @@ server.listen(port, function(){
 				console.log('successor:   Return successor information');
 				console.log('predecessor: Return predecessor information');
 				console.log('exit:        Terminate node (brutal)');
+				console.log('core [id]:   Fetch data from Spark Core');
 				console.log('help:        Returns this information :)\n');
+				break;
+			case 'core':
+				n.lookup(cmd[1], function(core){
+					core = util.peerFromJson(core);
+					core.fetchData();
+					console.log('\nNode '+core.id+' is fetching data from Spark Core');
+				});
 				break;
 			default:
 				console.log('Unknown command');
