@@ -257,7 +257,7 @@ exports.Node = function(ip, port){
 	}
 
 	this.readData = function(limit, callback){
-		this.Point.find().sort({timestamp: -1}).limit(limit).exec(function (err, point) {
+		this.Point.find().sort({timestamp: 1}).limit(limit).exec(function (err, point) {
 			callback(point);
 		});
 		
