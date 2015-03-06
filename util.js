@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var restify = require('restify');
+var mongoose = require('mongoose');
 var peer = require('./peer');
 
 exports.randomPort = function() {
@@ -54,6 +55,12 @@ exports.readCore = function(callback){
 			url: 'https://api.spark.io'
 		}).get('/v1/devices/53ff6c066667574814522567/temperature?access_token=761660f7e8884a2cd778167bfbd91150dfb85d81', function(err, req, res, data){
 			temp = data.result.toFixed(2);
-			callback(temp);
+
+			restify.createJsonClient({
+				url: 'https://api.spark.io'
+			}).get('/v1/devices/53ff6c066667574814522567/light?access_token=761660f7e8884a2cd778167bfbd91150dfb85d81', function(err, req, res, data){
+				light = data.result;
+				callback(temp, light);
+			});
 		});
 }

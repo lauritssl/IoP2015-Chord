@@ -1,5 +1,6 @@
 var util = require('./util');
 var peer = require('./peer');
+var mongoose = require('mongoose');
 
 exports.Node = function(ip, port){
 
@@ -12,6 +13,9 @@ exports.Node = function(ip, port){
 
 	this.finger = [];
 	this.m = 20;
+
+	mongoose.connect('mongodb://localhost/core');
+	this.Point = mongoose.model('Point', new mongoose.Schema({ timestamp: { type: Date, default: Date.now }, temp: Number, light: Number }));
 
 	this.create = function(){
 		this.successor = util.peerFromJson( this.toJson() );
@@ -231,11 +235,32 @@ exports.Node = function(ip, port){
 	}
 
 	this.fetchData = function(){
+		(function(par){
 		setInterval(function(){
-			util.readCore(function(data){
-				console.log(data);
-			});
-		}, 2000);
+			
+			
+				util.readCore(function(temp, light){
+
+					var point = new par.Point({ temp: temp, light: light });
+					point.save(function (err) {
+						if(err){
+							console.log('Error');
+						}else{
+							console.log('Data saved');
+						}
+					});
+				});
+
+			
+		}, 1800000);
+		}(this));
+	}
+
+	this.readData = function(limit, callback){
+		this.Point.find().sort({timestamp: -1}).limit(limit).exec(function (err, point) {
+			callback(point);
+		});
+		
 	}
 
 }

@@ -84,6 +84,13 @@ server.get('/getFingerTable/', function (req, res, next){
 	});
 });
 
+server.get('/read_data/:limit', function (req, res, next){
+	n.readData(req.params.limit, function(data){
+		res.send(200, data);
+		next();
+	});
+});
+
 server.post('/notify/:ip/:port', function (req, res, next){
 	n.notify( util.peerFromJson(req.params) );
 	res.send(200, 'success');
@@ -162,6 +169,11 @@ server.listen(port, function(){
 					core = util.peerFromJson(core);
 					core.fetchData();
 					console.log('\nNode '+core.id+' is fetching data from Spark Core');
+				});
+				break;
+			case 'read':
+				n.readData(5, function(data){
+					console.log(data);
 				});
 				break;
 			default:
